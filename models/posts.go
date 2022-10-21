@@ -96,7 +96,7 @@ func (m PostModel) GetAll(f Filter) ([]Post, Metadata, error) {
 	}
 
 	if len(posts) == 0 {
-		return nil, meta, errors.New("No record")
+		return nil, meta, nil //errors.New("No record")
 	}
 
 	first := posts[0]

@@ -7,6 +7,7 @@ require (
 	github.com/alexedwards/scs/postgresstore v0.0.0-20220528130143-d93ace5be94b
 	github.com/alexedwards/scs/v2 v2.5.0
 	github.com/go-chi/chi/v5 v5.0.7
+	github.com/golang-module/carbon/v2 v2.1.9
 	github.com/lib/pq v1.10.7
 	github.com/upper/db/v4 v4.6.0
 	golang.org/x/crypto v0.0.0-20220307211146-efcb8507fb70
@@ -14,7 +15,6 @@ require (
 
 require (
 	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
-	github.com/golang-module/carbon/v2 v2.1.9 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.11.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect

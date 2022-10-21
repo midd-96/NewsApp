@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/url"
 	"strings"
 	"time"
@@ -42,15 +43,15 @@ type Post struct {
 	TotalRecords int       `db:"total_records,omitempty"`
 }
 
-type PostModel struct {
+type PostsModel struct {
 	db db.Session
 }
 
-func (m PostModel) Table() string {
+func (m PostsModel) Table() string {
 	return "posts"
 }
 
-func (m PostModel) Get(id int) (*Post, error) {
+func (m PostsModel) Get(id int) (*Post, error) {
 	var post Post
 
 	q := strings.Replace(queryTemplate, "#where#", "WHERE p.id = $1", 1)
@@ -68,10 +69,11 @@ func (m PostModel) Get(id int) (*Post, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &post, nil
 }
 
-func (m PostModel) GetAll(f Filter) ([]Post, Metadata, error) {
+func (m PostsModel) GetAll(f Filter) ([]Post, Metadata, error) {
 	var posts []Post
 	var rows *sql.Rows
 	var err error
@@ -84,6 +86,7 @@ func (m PostModel) GetAll(f Filter) ([]Post, Metadata, error) {
 	} else {
 		rows, err = m.db.SQL().Query(q, f.limit(), f.offset())
 	}
+
 	if err != nil {
 		return nil, meta, err
 	}
@@ -96,15 +99,16 @@ func (m PostModel) GetAll(f Filter) ([]Post, Metadata, error) {
 	}
 
 	if len(posts) == 0 {
-		return nil, meta, nil //errors.New("No record")
+		return nil, meta, nil
 	}
 
 	first := posts[0]
+	fmt.Println(posts)
 	return posts, calculateMetadata(first.TotalRecords, f.Page, f.PageSize), nil
-
 }
 
-func (m PostModel) Vote(postId, userId int) error {
+func (m PostsModel) Vote(postId, userId int) error {
+
 	col := m.db.Collection("votes")
 
 	_, err := col.Insert(map[string]int{
@@ -117,7 +121,6 @@ func (m PostModel) Vote(postId, userId int) error {
 		}
 		return err
 	}
-
 	return nil
 }
 
@@ -131,4 +134,23 @@ func (p *Post) Host() string {
 		return ""
 	}
 	return ur.Host
+}
+
+func (m PostsModel) Insert(title, url string, userId int) (*Post, error) {
+
+	post := Post{
+		CreatedAt: time.Now(),
+		Title:     title,
+		Url:       url,
+		UserID:    userId,
+	}
+
+	col := m.db.Collection(m.Table())
+	res, err := col.Insert(post)
+	if err != nil {
+		return nil, err
+	}
+
+	post.ID = convertUpperIDtoInt(res.ID())
+	return &post, nil
 }

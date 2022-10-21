@@ -11,6 +11,21 @@ import (
 
 func (a *application) homeHandler(w http.ResponseWriter, r *http.Request) {
 
+	// u := models.User{
+	// 	Email:    "test@gmail.com",
+	// 	Password: "password",
+	// 	Name:     "Test User",
+	// }
+
+	// err := a.Models.Users.Insert(&u)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// a.Models.Posts.Insert("Sample title 1", "http://localhost", u.ID)
+	// a.Models.Posts.Insert("Sample title 2", "http://localhost", u.ID)
+	// a.Models.Posts.Insert("Sample title 3", "http://localhost", u.ID)
+	// a.Models.Posts.Insert("Sample title 4", "http://localhost", u.ID)
+
 	err := r.ParseForm()
 	if err != nil {
 		a.serverError(w, err)

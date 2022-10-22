@@ -96,3 +96,70 @@ func (a *application) commentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (a *application) loginHandler(w http.ResponseWriter, r *http.Request) {
+	err := a.render(w, r, "login", nil)
+	if err != nil {
+		a.serverError(w, err)
+		return
+	}
+}
+
+func (a *application) signupHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := make(jet.VarMap)
+	vars.Set("form", forms.New(r.PostForm))
+
+	err := a.render(w, r, "signup", vars)
+	if err != nil {
+		a.serverError(w, err)
+		return
+	}
+}
+
+func (a *application) loginPostHandler(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 1024*2)
+
+	err := r.ParseForm()
+	if err != nil {
+		a.serverError(w, err)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	form.Email("email")
+	form.MinLength("password", 3)
+
+	if !form.Valid() {
+		vars := make(jet.VarMap)
+		vars.Set("errors", form.Errors)
+		err := a.render(w, r, "login", vars)
+		if err != nil {
+			a.serverError(w, err)
+			return
+		}
+	}
+
+	user, err := a.Models.Users.Authenticate(form.Get("email"), form.Get("password"))
+	if err != nil {
+		a.session.Put(r.Context(), "flash", "Login error: "+err.Error())
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	a.session.RenewToken(r.Context())
+	a.session.Put(r.Context(), sessionKeyUserId, user.ID)
+	a.session.Put(r.Context(), sessionKeyUserName, user.Name)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (a *application) logoutHandler(w http.ResponseWriter, r *http.Request) {
+
+	a.session.Remove(r.Context(), sessionKeyUserId)
+	a.session.Remove(r.Context(), sessionKeyUserName)
+
+	a.session.Destroy(r.Context())
+	a.session.RenewToken(r.Context())
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}

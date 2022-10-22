@@ -35,6 +35,11 @@ type server struct {
 	url  string
 }
 
+const (
+	sessionKeyUserId   = "userId"
+	sessionKeyUserName = "userName"
+)
+
 func main() {
 
 	migrate := flag.Bool("migrate", false, "should migrate - drop all tables")

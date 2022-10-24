@@ -104,7 +104,7 @@ func (a *application) commentPostHandler(w http.ResponseWriter, r *http.Request)
 
 	if !form.Valid() {
 		a.errLog.Printf("%+v", form.Errors)
-		a.session.Put(r.Context(), "flash", "Error: your comment is not valid: min: 10, max: 255")
+		a.session.Put(r.Context(), "flash", "Error: your comment is not valid: min: 3, max: 255")
 		http.Redirect(w, r, fmt.Sprintf("/comments/%d", postId), http.StatusSeeOther)
 		return
 	}

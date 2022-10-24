@@ -82,6 +82,44 @@ func (a *application) commentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (a *application) commentPostHandler(w http.ResponseWriter, r *http.Request) {
+
+	r.Body = http.MaxBytesReader(w, r.Body, 1024*2)
+	postId, err := strconv.Atoi(chi.URLParam(r, "postId"))
+	if err != nil {
+		a.serverError(w, err)
+		return
+	}
+
+	err = r.ParseForm()
+	if err != nil {
+		a.serverError(w, err)
+		return
+	}
+
+	userId := a.session.GetInt(r.Context(), sessionKeyUserId)
+
+	form := forms.New(r.PostForm)
+	form.MinLength("comment", 3).MaxLength("comment", 255)
+
+	if !form.Valid() {
+		a.errLog.Printf("%+v", form.Errors)
+		a.session.Put(r.Context(), "flash", "Error: your comment is not valid: min: 10, max: 255")
+		http.Redirect(w, r, fmt.Sprintf("/comments/%d", postId), http.StatusSeeOther)
+		return
+	}
+
+	err = a.Models.Comments.Insert(form.Get("comment"), postId, userId)
+	if !form.Valid() {
+		a.session.Put(r.Context(), "flash", "Error: "+err.Error())
+		http.Redirect(w, r, fmt.Sprintf("/comments/%d", postId), http.StatusSeeOther)
+		return
+	}
+
+	a.session.Put(r.Context(), "flash", "comment created")
+	http.Redirect(w, r, fmt.Sprintf("/comments/%d", postId), http.StatusSeeOther)
+}
+
 func (a *application) loginHandler(w http.ResponseWriter, r *http.Request) {
 	err := a.render(w, r, "login", nil)
 	if err != nil {

@@ -8,6 +8,7 @@ require (
 	github.com/alexedwards/scs/v2 v2.5.0
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/golang-module/carbon/v2 v2.1.9
+	github.com/justinas/nosurf v1.1.1
 	github.com/lib/pq v1.10.7
 	github.com/upper/db/v4 v4.6.0
 	golang.org/x/crypto v0.0.0-20220307211146-efcb8507fb70

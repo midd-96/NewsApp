@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/CloudyKit/jet/v6"
+	"github.com/justinas/nosurf"
 )
 
 type TemplateData struct {
@@ -27,6 +28,8 @@ func (a *application) defaultData(td *TemplateData, r *http.Request) *TemplateDa
 
 		td.Flash = a.session.PopString(r.Context(), "flash")
 	}
+
+	td.CSRFToken = nosurf.Token(r)
 
 	return td
 }
